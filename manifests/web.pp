@@ -8,6 +8,9 @@ class project::web {
     apache::module { "rewrite": }
     apache::module { "headers": }
     apache::module { "expires": }
+    apache::module { "proxy": }
+    apache::module { "proxy_http": }
+    apache::module { "vhost_alias": }
 
     /*== vhost ==*/
     apache::vhost { 'dev.local':
