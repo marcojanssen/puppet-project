@@ -12,9 +12,48 @@ class project::jenkins {
         require    => Package["jenkins"]
     }
 
-    exec { "jenkins-plugin-cloverphp":
-        command => 'wget http://updates.jenkins-ci.org/latest/cloverphp.hpi -O /var/lib/jenkins/plugins',
-        require => Package["jenkins"],
-        notify => Service['jenkins']
+    exec { "qatools-install":
+        command => "pear install pear.phpqatools.org/phpqatools",
+        unless => "pear info pear.phpqatools.org/phpqatools",
+        require => Exec['pear-auto-discover']
     }
+
+    exec { "jenkins-update-center":
+        command => 'wget -O /var/tmp/default.js http://updates.jenkins-ci.org/update-center.json',
+        creates => "/var/tmp/default.js",
+        require => Package["jenkins"]
+    }
+
+    exec { "jenkins-update-center-json":
+        command => "sed '1d;$d' /var/tmp/default.js > /var/tmp/default.json",
+        creates => "/var/tmp/default.json",
+        require => Exec["jenkins-update-center"]
+    }
+
+    exec { "jenkins-update-center-update":
+        command => 'curl -X POST -H "Accept: application/json" -d @/var/tmp/default.json http://localhost:8080/updateCenter/byId/default/postBack --verbose',
+        require => [
+                      Exec["jenkins-update-center-json"],
+                      Class['apache']
+                   ]
+    }
+
+    exec { "jenkins-plugin":
+        command => 'mkdir /var/lib/jenkins/plugins',
+        creates => "/var/lib/jenkins/plugins",
+        group   => 'jenkins',
+        require => Exec["jenkins-update-center-update"]
+    }
+
+    exec { "jenkins-plugins":
+        command => 'jenkins-cli -s http://localhost:8080 install-plugin checkstyle cloverphp dry htmlpublisher jdepend plot pmd violations xunit',
+        require => Exec["jenkins-plugin"]
+    }
+
+    exec { "jenkins-restart":
+        command => 'jenkins-cli -s http://localhost:8080 safe-restart',
+        require => Exec["jenkins-plugins"]
+    }
+
+
 }
