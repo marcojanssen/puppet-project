@@ -34,7 +34,8 @@ class project::jenkins {
         command => 'curl -X POST -H "Accept: application/json" -d @/var/tmp/default.json http://localhost:8080/updateCenter/byId/default/postBack --verbose',
         require => [
                       Exec["jenkins-update-center-json"],
-                      Class['apache']
+                      Class['apache'],
+                      Service['apache']
                    ]
     }
 
@@ -53,6 +54,16 @@ class project::jenkins {
     exec { "jenkins-restart":
         command => 'jenkins-cli -s http://localhost:8080 safe-restart',
         require => Exec["jenkins-plugins"]
+    }
+
+    exec { "jenkins-default-php-template":
+        command => 'curl https://raw.github.com/sebastianbergmann/php-jenkins-template/master/config.xml | jenkins-cli -s http://localhost:8080 create-job php-template',
+        require => Exec["jenkins-restart"]
+    }
+
+    exec { "jenkins-config-reload":
+        command => 'jenkins-cli -s http://localhost:8080 reload-configuration',
+        require => Exec["jenkins-default-php-template"]
     }
 
 
