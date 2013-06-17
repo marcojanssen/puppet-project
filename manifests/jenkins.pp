@@ -51,18 +51,13 @@ class project::jenkins {
         require => Exec["jenkins-plugin"]
     }
 
+    exec { "jenkins-default-php-template":
+      command => 'cd /var/lib/jenkins/jobs | mkdir php-template | cd php-template | wget https://raw.github.com/sebastianbergmann/php-jenkins-template/master/config.xml | cd .. | chown -R jenkins:jenkins php-template/',
+      require => Exec["jenkins-plugins"]
+    }
+
     exec { "jenkins-restart":
         command => 'jenkins-cli -s http://localhost:8080 safe-restart',
-        require => Exec["jenkins-plugins"]
-    }
-
-    exec { "jenkins-default-php-template":
-        command => 'curl https://raw.github.com/sebastianbergmann/php-jenkins-template/master/config.xml | jenkins-cli -s http://localhost:8080 create-job php-template',
-        require => Exec["jenkins-restart"]
-    }
-
-    exec { "jenkins-config-reload":
-        command => 'jenkins-cli -s http://localhost:8080 reload-configuration',
         require => Exec["jenkins-default-php-template"]
     }
 

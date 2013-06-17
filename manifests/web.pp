@@ -12,14 +12,6 @@ class project::web {
     apache::module { "proxy_http": }
     apache::module { "vhost_alias": }
 
-    /*== vhost ==*/
-    apache::vhost { 'dev.local':
-        docroot             => '/var/www',
-        server_name         => 'dev.local',
-        priority            => '',
-        template            => 'apache/virtualhost/vhost.conf.erb',
-    }
-
     /*== SSL ==*/
     include apache::ssl
 
