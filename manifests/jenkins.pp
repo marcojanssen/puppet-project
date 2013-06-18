@@ -35,59 +35,52 @@ class project::jenkins {
         require => Exec['pear-auto-discover']
     }
 
-    exec { "jenkins-plugins-dir":
-        command => 'mkdir /var/lib/jenkins/plugins',
-        creates => "/var/lib/jenkins/plugins",
-        group   => 'jenkins',
-        user     => "jenkins",
-        require => [
-            Package["jenkins"],
-            Package["jenkins-cli"]
-        ]
+    project::jenkins::plugin {
+        "git" : ;
     }
 
-    exec { "jenkins-plugins-update-step1":
-        command => 'mkdir /var/lib/jenkins/updates',
-        creates => "/var/lib/jenkins/updates",
-        require => [
-            Package["jenkins"],
-            Package["jenkins-cli"],
-            Exec["jenkins-plugins-dir"]
-        ]
+    project::jenkins::plugin {
+        "phing" : ;
     }
 
-    exec { "jenkins-plugins-update-step2":
-        command => "wget -O default.js http://updates.jenkins-ci.org/update-center.json",
-        cwd     => "/var/lib/jenkins/updates",
-        require => Exec["jenkins-plugins-update-step1"]
+    project::jenkins::plugin {
+        "subversion" : ;
     }
 
-    exec { "jenkins-plugins-update-step3":
-        command => "sed '1d;$d' default.js > default.json",
-        creates => "/var/lib/jenkins/updates/default.json",
-        cwd     => "/var/lib/jenkins/updates",
-        require => Exec["jenkins-plugins-update-step2"]
+    project::jenkins::plugin {
+        "checkstyle" : ;
     }
 
-    exec { "jenkins-plugins-update-step4":
-        command => 'chown -R jenkins:nogroup /var/lib/jenkins/updates',
-        require => Exec["jenkins-plugins-update-step3"]
+    project::jenkins::plugin {
+        "cloverphp" : ;
     }
 
-    exec { "jenkins-plugins-update-step5":
-        command => 'service jenkins restart',
-        require => Exec["jenkins-plugins-update-step4"]
+    project::jenkins::plugin {
+        "dry" : ;
     }
 
-    exec { "jenkins-plugins-install":
-        command => 'jenkins-cli -s http://localhost:8080 install-plugin phing git subversion checkstyle cloverphp dry htmlpublisher jdepend plot pmd violations xunit',
-        require => Exec["jenkins-plugins-update-step5"]
+    project::jenkins::plugin {
+        "htmlpublisher" : ;
     }
 
-    exec { "jenkins-restart":
-        command => 'jenkins-cli -s http://localhost:8080 safe-restart',
-        require => Exec["jenkins-plugins-install"]
+    project::jenkins::plugin {
+        "jdepend" : ;
     }
 
+    project::jenkins::plugin {
+        "plot" : ;
+    }
+
+    project::jenkins::plugin {
+        "pmd" : ;
+    }
+
+    project::jenkins::plugin {
+        "violations" : ;
+    }
+
+    project::jenkins::plugin {
+        "xunit" : ;
+    }
 
 }
