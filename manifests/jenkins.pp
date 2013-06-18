@@ -47,7 +47,7 @@ class project::jenkins {
     }
 
     exec { "jenkins-plugins":
-        command => 'jenkins-cli -s http://localhost:8080 install-plugin checkstyle cloverphp dry htmlpublisher jdepend plot pmd violations xunit',
+        command => 'jenkins-cli -s http://localhost:8080 install-plugin phing git subversion checkstyle cloverphp dry htmlpublisher jdepend plot pmd violations xunit',
         require => Exec["jenkins-plugin"]
     }
 
