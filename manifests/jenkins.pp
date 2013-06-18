@@ -17,6 +17,11 @@ class project::jenkins {
         require => Exec["apt-update"]
     }
 
+    package { "jenkins-cli":
+        ensure  => present,
+        require => Exec["apt-update"]
+    }
+
     service { "jenkins":
         ensure     => running,
         enable     => true,
@@ -30,55 +35,58 @@ class project::jenkins {
         require => Exec['pear-auto-discover']
     }
 
-    exec { "jenkins-update-center":
-        command => 'wget -O /var/tmp/default.js http://updates.jenkins-ci.org/update-center.json',
-        creates => "/var/tmp/default.js",
-        require => Package["jenkins"]
-    }
-
-    exec { "jenkins-update-center-json":
-        command => "sed '1d;$d' /var/tmp/default.js > /var/tmp/default.json",
-        creates => "/var/tmp/default.json",
-        require => Exec["jenkins-update-center"]
-    }
-
-    exec { "jenkins-update-center-update":
-        command => 'curl -X POST -H "Accept: application/json" -d @/var/tmp/default.json http://localhost:8080/updateCenter/byId/default/postBack --verbose',
-        require => [
-                      Exec["jenkins-update-center-json"],
-                      Class['apache'],
-                      Service['apache']
-                   ]
-    }
-
-    exec { "jenkins-plugin":
+    exec { "jenkins-plugins-dir":
         command => 'mkdir /var/lib/jenkins/plugins',
         creates => "/var/lib/jenkins/plugins",
         group   => 'jenkins',
-        require => Exec["jenkins-update-center-update"]
+        user     => "jenkins",
+        require => [
+            Package["jenkins"],
+            Package["jenkins-cli"]
+        ]
     }
 
-    exec { "jenkins-plugins":
+    exec { "jenkins-plugins-update-step1":
+        command => 'mkdir /var/lib/jenkins/updates',
+        creates => "/var/lib/jenkins/updates",
+        require => [
+            Package["jenkins"],
+            Package["jenkins-cli"],
+            Exec["jenkins-plugins-dir"]
+        ]
+    }
+
+    exec { "jenkins-plugins-update-step2":
+        command => "wget -O default.js http://updates.jenkins-ci.org/update-center.json",
+        cwd     => "/var/lib/jenkins/updates",
+        require => Exec["jenkins-plugins-update-step1"]
+    }
+
+    exec { "jenkins-plugins-update-step3":
+        command => "sed '1d;$d' default.js > default.json",
+        creates => "/var/lib/jenkins/updates/default.json",
+        cwd     => "/var/lib/jenkins/updates",
+        require => Exec["jenkins-plugins-update-step2"]
+    }
+
+    exec { "jenkins-plugins-update-step4":
+        command => 'chown -R jenkins:nogroup /var/lib/jenkins/updates',
+        require => Exec["jenkins-plugins-update-step3"]
+    }
+
+    exec { "jenkins-plugins-update-step5":
+        command => 'service jenkins restart',
+        require => Exec["jenkins-plugins-update-step4"]
+    }
+
+    exec { "jenkins-plugins-install":
         command => 'jenkins-cli -s http://localhost:8080 install-plugin phing git subversion checkstyle cloverphp dry htmlpublisher jdepend plot pmd violations xunit',
-        require => Exec["jenkins-plugin"]
-    }
-
-    exec { "jenkins-default-php-template":
-        command  => 'mkdir /var/lib/jenkins/jobs/php-template',
-        creates  => "/var/lib/jenkins/jobs/php-template",
-        group    => 'jenkins',
-        require  => Exec["jenkins-plugins"]
-    }
-
-    exec { "jenkins-default-php-template-config":
-        command  => 'wget https://raw.github.com/sebastianbergmann/php-jenkins-template/master/config.xml',
-        cwd      => '/var/lib/jenkins/jobs/php-template',
-        require  => Exec["jenkins-default-php-template"]
+        require => Exec["jenkins-plugins-update-step5"]
     }
 
     exec { "jenkins-restart":
         command => 'jenkins-cli -s http://localhost:8080 safe-restart',
-        require => Exec["jenkins-default-php-template-config"]
+        require => Exec["jenkins-plugins-install"]
     }
 
 
