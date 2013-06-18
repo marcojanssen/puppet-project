@@ -2,10 +2,10 @@ class project::php5 {
 
     class { 'php':
         require => Exec["apt-update"],
+        augeas => true
     }
 
     php::module { "common": }
-    php::module { "dev": }
 
     php::module { "cli": }
     php::module { "intl": }
