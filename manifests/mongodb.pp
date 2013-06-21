@@ -18,7 +18,10 @@ class project::mongodb {
     }
 
     php::pecl::module { "mongo":
-        require => Package['mongodb']
+        require => [
+            Package['mongodb'],
+            Exec['pear-auto-discover']
+        ]
     }
 
     file {
