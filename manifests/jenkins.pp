@@ -1,6 +1,23 @@
 class project::jenkins {
 
+    exec { "jenkins-apt-get-key":
+        command => "wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -",
+        before  => Exec['apt-update']
+    }
+
+    exec { "jenkins-apt-get-sources":
+        command => "sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'",
+        creates => '/etc/apt/sources.list.d/jenkins.list',
+        require => Exec["jenkins-apt-get-key"],
+        before  => Exec['apt-update']
+    }
+
     package { "jenkins":
+        ensure  => present,
+        require => Exec["apt-update"]
+    }
+
+    package { "jenkins-cli":
         ensure  => present,
         require => Exec["apt-update"]
     }
@@ -18,56 +35,52 @@ class project::jenkins {
         require => Exec['pear-auto-discover']
     }
 
-    exec { "jenkins-update-center":
-        command => 'wget -O /var/tmp/default.js http://updates.jenkins-ci.org/update-center.json',
-        creates => "/var/tmp/default.js",
-        require => Package["jenkins"]
+    project::jenkins::plugin {
+        "git" : ;
     }
 
-    exec { "jenkins-update-center-json":
-        command => "sed '1d;$d' /var/tmp/default.js > /var/tmp/default.json",
-        creates => "/var/tmp/default.json",
-        require => Exec["jenkins-update-center"]
+    project::jenkins::plugin {
+        "phing" : ;
     }
 
-    exec { "jenkins-update-center-update":
-        command => 'curl -X POST -H "Accept: application/json" -d @/var/tmp/default.json http://localhost:8080/updateCenter/byId/default/postBack --verbose',
-        require => [
-                      Exec["jenkins-update-center-json"],
-                      Class['apache'],
-                      Service['apache']
-                   ]
+    project::jenkins::plugin {
+        "subversion" : ;
     }
 
-    exec { "jenkins-plugin":
-        command => 'mkdir /var/lib/jenkins/plugins',
-        creates => "/var/lib/jenkins/plugins",
-        group   => 'jenkins',
-        require => Exec["jenkins-update-center-update"]
+    project::jenkins::plugin {
+        "checkstyle" : ;
     }
 
-    exec { "jenkins-plugins":
-        command => 'jenkins-cli -s http://localhost:8080 install-plugin phing git subversion checkstyle cloverphp dry htmlpublisher jdepend plot pmd violations xunit',
-        require => Exec["jenkins-plugin"]
+    project::jenkins::plugin {
+        "cloverphp" : ;
     }
 
-    exec { "jenkins-default-php-template":
-        command  => 'mkdir /var/lib/jenkins/jobs/php-template',
-        creates  => "/var/lib/jenkins/jobs/php-template",
-        group    => 'jenkins',
-        require  => Exec["jenkins-plugins"]
+    project::jenkins::plugin {
+        "dry" : ;
     }
 
-    exec { "jenkins-default-php-template-config":
-        command  => 'wget https://raw.github.com/sebastianbergmann/php-jenkins-template/master/config.xml',
-        cwd      => '/var/lib/jenkins/jobs/php-template',
-        require  => Exec["jenkins-default-php-template"]
+    project::jenkins::plugin {
+        "htmlpublisher" : ;
     }
 
-    exec { "jenkins-restart":
-        command => 'jenkins-cli -s http://localhost:8080 safe-restart',
-        require => Exec["jenkins-default-php-template-config"]
+    project::jenkins::plugin {
+        "jdepend" : ;
     }
 
+    project::jenkins::plugin {
+        "plot" : ;
+    }
+
+    project::jenkins::plugin {
+        "pmd" : ;
+    }
+
+    project::jenkins::plugin {
+        "violations" : ;
+    }
+
+    project::jenkins::plugin {
+        "xunit" : ;
+    }
 
 }
