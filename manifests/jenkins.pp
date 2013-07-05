@@ -83,4 +83,15 @@ class project::jenkins {
         "xunit" : ;
     }
 
+    file {
+        "/etc/apache2/sites-enabled/000-default":
+        ensure  => present,
+        require => Package["apache"],
+        source  => "puppet:///modules/project/jenkins/apache/000-default",
+        notify  => Service["apache"],
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644';
+    }
+
 }
