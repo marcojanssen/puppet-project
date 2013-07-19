@@ -1,17 +1,5 @@
 class project::jenkins {
 
-    exec { "jenkins-apt-get-key":
-        command => "wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -",
-        before  => Exec['apt-update']
-    }
-
-    exec { "jenkins-apt-get-sources":
-        command => "sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'",
-        creates => '/etc/apt/sources.list.d/jenkins.list',
-        require => Exec["jenkins-apt-get-key"],
-        before  => Exec['apt-update']
-    }
-
     package { "jenkins":
         ensure  => present,
         require => Exec["apt-update"]
