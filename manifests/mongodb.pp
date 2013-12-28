@@ -6,20 +6,21 @@ class project::mongodb {
     }
 
     exec { "mongodb-apt-get-sources":
-        command => "echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | tee /etc/apt/sources.list.d/10gen.list",
-        creates => '/etc/apt/sources.list.d/10gen.list',
+        command => "echo 'deb http://downloads-distro.mongodb.org/repo/debian-sysvinit dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list",
+        creates => '/etc/apt/sources.list.d/mongodb.list',
         require => Exec["mongodb-apt-get-key"],
         before  => Exec['apt-update']
     }
 
-    package { "mongodb":
+    package { "mongodb-10gen":
         ensure   => present,
         require  => Exec["apt-update"]
     }
 
-    php::pecl::module { "mongo":
+    exec { "php-mongo-driver":
+        command => "pecl install mongo",
         require => [
-            Package['mongodb'],
+            Package['mongodb-10gen'],
             Exec['pear-auto-discover']
         ]
     }
@@ -28,7 +29,7 @@ class project::mongodb {
         "/etc/php5/conf.d/mongo.ini":
         ensure  => present,
         require => [
-                      Package["mongodb"],
+                      Package["mongodb-10gen"],
                       Package["apache"]
                    ],
         source  => "puppet:///modules/project/mongodb/php.ini",
