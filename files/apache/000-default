@@ -1,0 +1,9 @@
+<VirtualHost *:80>
+    UseCanonicalName Off
+
+    VirtualDocumentRoot /var/www/%1/web
+ 
+    <Directory /var/www>
+        AllowOverride All
+    </Directory>
+</VirtualHost>
