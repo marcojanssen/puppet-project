@@ -17,10 +17,19 @@ class project::mongodb {
         require  => Exec["apt-update"]
     }
 
+    package { "php5-dev":
+        ensure   => present,
+        require  => [
+            Exec["apt-update"],
+            Package["php"]
+        ]
+    }
+
     exec { "php-mongo-driver":
         command => "pecl install mongo",
         require => [
             Package['mongodb-10gen'],
+            Package['php5-dev'],
             Exec['pear-auto-discover']
         ]
     }

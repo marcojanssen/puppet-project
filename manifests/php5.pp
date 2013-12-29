@@ -5,8 +5,9 @@ class project::php5 {
         augeas => true
     }
 
-    php::module { "common": }
 
+
+    php::module { "common": }
     php::module { "cli": }
     php::module { "intl": }
     php::module { "imagick": }
@@ -25,8 +26,21 @@ class project::php5 {
         require => Package['php'],
         context => "/files/etc/php5/apache2/php.ini",
         changes => [
-            "set Date/date.timezone Europe/Amsterdam",
-        ];
+            "set Date/date.timezone Europe/Amsterdam"
+        ]
+    }
+
+    file {
+        "/etc/php5/mods-available/xdebug.ini":
+        ensure  => present,
+        require => [
+            Package["php"]
+        ],
+        source  => "puppet:///modules/project/php5/xdebug.ini",
+        notify  => Service["apache"],
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644'
     }
 
 
