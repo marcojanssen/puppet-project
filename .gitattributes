@@ -1,1 +1,1 @@
-files/.bashrc text eol=lf
+files/* text eol=lf
