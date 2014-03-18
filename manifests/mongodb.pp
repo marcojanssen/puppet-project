@@ -31,7 +31,8 @@ class project::mongodb {
             Package['mongodb-10gen'],
             Package['php5-dev'],
             Exec['pear-auto-discover']
-        ]
+        ],
+        user => root
     }
 
     file {
