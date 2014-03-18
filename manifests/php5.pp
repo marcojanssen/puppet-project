@@ -5,8 +5,6 @@ class project::php5 {
         augeas => true
     }
 
-
-
     php::module { "common": }
     php::module { "cli": }
     php::module { "intl": }
@@ -17,9 +15,7 @@ class project::php5 {
     php::module { "xdebug": }
     php::module { "mysql": }
     php::module { "sqlite": }
-    php::module { "apc":
-        module_prefix => "php-"
-    }
+    php::module { "xcache": }
 
     augeas { "php.ini":
         notify  => Service['apache2'],
@@ -37,6 +33,19 @@ class project::php5 {
             Package["php"]
         ],
         source  => "puppet:///modules/project/php5/xdebug.ini",
+        notify  => Service["apache"],
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644'
+    }
+
+    file {
+        "/etc/php5/mods-available/xcache.ini":
+        ensure  => present,
+        require => [
+            Package["php"]
+        ],
+        source  => "puppet:///modules/project/php5/xcache.ini",
         notify  => Service["apache"],
         owner   => 'root',
         group   => 'root',
