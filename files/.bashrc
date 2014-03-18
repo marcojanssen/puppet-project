@@ -1,24 +1,32 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
+if [ -f /etc/bash_completion ]; then
+    source /etc/bash_completion
+fi
 
-# If not running interactively, don't do anything
-[ -z "$PS1" ] && return
+__has_parent_dir () {
+    # Utility function so we can test for things like .git/.hg without firing up a
+    # separate process
+    test -d "$1" && return 0;
 
-# don't put duplicate lines in the history. See bash(1) for more options
-# ... or force ignoredups and ignorespace
-HISTCONTROL=ignoredups:ignorespace
+    current="."
+    while [ ! "$current" -ef "$current/.." ]; do
+        if [ -d "$current/$1" ]; then
+            return 0;
+        fi
+        current="$current/..";
+    done
 
-# append to the history file, don't overwrite it
-shopt -s histappend
+    return 1;
+}
 
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
-
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
-shopt -s checkwinsize
+__vcs_name() {
+    if [ -d .svn ]; then
+        echo "-[svn]";
+    elif __has_parent_dir ".git"; then
+        echo "-[$(__git_ps1 'git %s')]";
+    elif __has_parent_dir ".hg"; then
+        echo "-[hg $(hg branch)]"
+    fi
+}
 
 black=$(tput -Txterm setaf 0)
 red=$(tput -Txterm setaf 1)
@@ -32,22 +40,13 @@ bold=$(tput -Txterm bold)
 reset=$(tput -Txterm sgr0)
 
 # Nicely formatted terminal prompt
-export PS1='\n\[$bold\]\[$black\][\[$green\]\u\[$yellow\]@\[$green\]\h\[$black\]]-[\[$yellow\]\w\[$black\]]\[\033[0;33m\] \[\033[00m\]\[$reset\]\[$reset\]\[$\] '
+export PS1='\n\[$bold\]\[$black\][\[$dk_blue\]\@\[$black\]]-[\[$green\]\u\[$yellow\]@\[$green\]\h\[$black\]]-[\[$pink\]\w\[$black\]]\[\033[0;33m\]$(__vcs_name) \[\033[00m\]\[$reset\]\n\[$reset\]\$ '
 
-# some more ls aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
-alias ls='ls --color=auto'
-
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
+alias ls='ls -F --color=always'
+alias dir='dir -F --color=always'
+alias ll='ls -l'
+alias cp='cp -iv'
+alias rm='rm -i'
+alias mv='mv -iv'
+alias grep='grep --color=auto -in'
+alias ..='cd ..'
