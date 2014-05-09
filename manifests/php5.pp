@@ -1,21 +1,16 @@
 class project::php5 {
 
-    class { 'php':
-        require => Exec["apt-update"],
-        augeas => true
-    }
-
-    php::module { "common": }
-    php::module { "cli": }
-    php::module { "intl": }
-    php::module { "imagick": }
-    php::module { "gd": }
-    php::module { "mcrypt": }
-    php::module { "curl": }
-    php::module { "xdebug": }
-    php::module { "mysql": }
-    php::module { "sqlite": }
-    php::module { "xcache": }
+    package { 'php5': ensure   => present }
+    package { 'php5-common': ensure   => present, require  => Package["php5"] }
+    package { 'php5-curl': ensure   => present, require  => Package["php5-common"] }
+    package { 'php5-cli': ensure   => present, require  => Package["php5-common"] }
+    package { 'php5-intl': ensure   => present, require  => Package["php5-common"] }
+    package { 'php5-imagick': ensure   => present, require  => Package["php5-common"] }
+    package { 'php5-gd': ensure   => present, require  => Package["php5-common"] }
+    package { 'php5-mcrypt': ensure   => present, require  => Package["php5-common"] }
+    package { 'php5-mysql': ensure   => present, require  => Package["php5-common"] }
+    package { 'php5-sqlite': ensure   => present, require  => Package["php5-common"] }
+    package { 'php5-xcache': ensure   => present, require  => Package["php5-common"] }
 
     file {
         "/etc/php5/apache2/php.ini":

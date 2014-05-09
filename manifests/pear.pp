@@ -1,6 +1,13 @@
 class project::pear {
-    class { 'php::pear':
-        require => Package["php"],
+
+    package { 'php-pear':
+        ensure   => present,
+        require  => Package["php"]
+    }
+
+    package { 'php5-dev':
+        ensure   => present,
+        require  => Package["php"]
     }
 
     exec { "pear-upgrade":
