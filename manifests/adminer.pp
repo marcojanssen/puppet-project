@@ -7,7 +7,7 @@ class project::adminer {
     }
 
     exec { "download-adminer":
-        command => "wget http://downloads.sourceforge.net/adminer/adminer-3.7.1.php",
+        command => "wget http://downloads.sourceforge.net/adminer/adminer-4.1.0.php",
         cwd     => '/var/www/adminer/web',
         path    => ['/usr/bin', '/usr/sbin'],
         require => Exec['mkdir-adminer'],
@@ -15,7 +15,7 @@ class project::adminer {
     }
 
     exec { "rename-adminer":
-        command => "mv adminer-3.7.1.php index.php",
+        command => "mv adminer-4.1.0.php index.php",
         cwd     => '/var/www/adminer/web',
         path    => ['/bin'],
         require => Exec['download-adminer'],
