@@ -2,17 +2,17 @@ class project::pear {
 
     package { 'php-pear':
         ensure   => present,
-        require  => Package["php"]
+        require  => Package["php5"]
     }
 
     package { 'php5-dev':
         ensure   => present,
-        require  => Package["php"]
+        require  => Package["php5"]
     }
 
     exec { "pear-upgrade":
         command => "pear upgrade",
-        require => Class['php::pear'],
+        require => Package['php-pear'],
     }
 
     exec { "pear-auto-discover":

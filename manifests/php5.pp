@@ -16,7 +16,7 @@ class project::php5 {
         "/etc/php5/apache2/php.ini":
         ensure  => present,
         require => [
-            Package["php"]
+            Package["php5"]
         ],
         source  => "puppet:///modules/project/php5/php.ini",
         notify  => Service["apache"],
@@ -29,7 +29,7 @@ class project::php5 {
         "/etc/php5/cli/php.ini":
         ensure  => present,
         require => [
-            Package["php"]
+            Package["php5"]
         ],
         source  => "puppet:///modules/project/php5/php.ini",
         notify  => Service["apache"],
@@ -42,7 +42,7 @@ class project::php5 {
         "/etc/php5/mods-available/xdebug.ini":
         ensure  => present,
         require => [
-            Package["php"]
+            Package["php5"]
         ],
         source  => "puppet:///modules/project/php5/xdebug.ini",
         notify  => Service["apache"],
@@ -55,7 +55,7 @@ class project::php5 {
         "/etc/php5/mods-available/xcache.ini":
         ensure  => present,
         require => [
-            Package["php"]
+            Package["php5"]
         ],
         source  => "puppet:///modules/project/php5/xcache.ini",
         notify  => Service["apache"],

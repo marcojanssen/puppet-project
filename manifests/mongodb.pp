@@ -21,7 +21,7 @@ class project::mongodb {
         ensure   => present,
         require  => [
             Exec["apt-update"],
-            Package["php"],
+            Package["php5"],
             Package["mongodb-org"]
         ]
     }
