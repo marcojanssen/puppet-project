@@ -17,13 +17,30 @@ class project::php5 {
     php::module { "sqlite": }
     php::module { "xcache": }
 
-    augeas { "php.ini":
-        notify  => Service['apache2'],
-        require => Package['php'],
-        context => "/files/etc/php5/apache2/php.ini",
-        changes => [
-            "set Date/date.timezone Europe/Amsterdam"
-        ]
+    file {
+        "/etc/php5/apache2/php.ini":
+        ensure  => present,
+        require => [
+            Package["php"]
+        ],
+        source  => "puppet:///modules/project/php5/php.ini",
+        notify  => Service["apache"],
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644'
+    }
+
+    file {
+        "/etc/php5/cli/php.ini":
+        ensure  => present,
+        require => [
+            Package["php"]
+        ],
+        source  => "puppet:///modules/project/php5/php.ini",
+        notify  => Service["apache"],
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644'
     }
 
     file {
