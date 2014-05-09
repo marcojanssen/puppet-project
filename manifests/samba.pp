@@ -11,7 +11,11 @@ class project::samba {
         require => Package['samba'],
         owner   => 'root',
         group   => 'root',
-        mode    => '0644',
-        notify  => Service["samba"],
+        mode    => '0644'
+    }
+
+    exec { "restart-samba":
+        command => "service smbd restart",
+        require => File['/etc/samba/smb.conf']
     }
 }
