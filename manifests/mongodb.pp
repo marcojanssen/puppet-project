@@ -25,18 +25,4 @@ class project::mongodb {
             Package["mongodb-org"]
         ]
     }
-
-    file {
-        "/etc/php5/conf.d/mongo.ini":
-        ensure  => present,
-        require => [
-                      Package["mongodb-10gen"],
-                      Package["apache"]
-                   ],
-        source  => "puppet:///modules/project/mongodb/php.ini",
-        notify  => Service["apache"],
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644'
-    }
 }
