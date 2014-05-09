@@ -24,4 +24,9 @@ class project::web {
         command => "chown vagrant. /var/www",
         require => Class['apache']
     }
+
+    exec { "www-chmod":
+        command => "chmod 777 -R /var/www",
+        require => Class['apache']
+    }
 }
