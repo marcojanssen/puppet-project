@@ -25,12 +25,6 @@ class project::pdflib {
         mode    => '0644'
     }
 
-    file { '/etc/php5/conf.d/pdflib.ini':
-        require => [ Package["php"] ],
-        ensure => 'link',
-        target => '/etc/php5/mods-available/pdflib.ini'
-    }
-
     exec { "restart-apache":
         require => [ Package["php"] ],
         command => "sudo service apache2 restart"
