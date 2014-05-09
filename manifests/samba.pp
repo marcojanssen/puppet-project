@@ -15,7 +15,7 @@ class project::samba {
     }
 
     exec { "restart-samba":
-        command => "sudo service samba restart",
+        command => "service samba restart",
         require => File['/etc/samba/smb.conf']
     }
 }
