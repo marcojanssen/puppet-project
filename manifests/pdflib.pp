@@ -28,13 +28,13 @@ class project::pdflib {
     }
 
     exec { "symlink-pdflib-apache2":
-        command => "ln -s /etc/php5/mods-available/pdflib.ini /etc/php5/apache2/conf.d/pdflib.ini",
+        command => "ln -sf /etc/php5/mods-available/pdflib.ini /etc/php5/apache2/conf.d/pdflib.ini",
         require => File['/etc/php5/mods-available/pdflib.ini'],
         notify  => Service["apache"]
     }
 
     exec { "symlink-pdflib-cli":
-        command => "ln -s /etc/php5/mods-available/pdflib.ini /etc/php5/cli/conf.d/pdflib.ini",
+        command => "ln -sf /etc/php5/mods-available/pdflib.ini /etc/php5/cli/conf.d/pdflib.ini",
         require => File['/etc/php5/mods-available/pdflib.ini'],
         notify  => Service["apache"]
     }
